@@ -1,5 +1,8 @@
 #!/bin/bash
-# 3x-ui 自定义安装脚本，支持环境变量传参
+# 3x-ui 自定义一键安装脚本 | Fork版本
+# 环境变量可传参：PANEL_USER PANEL_PASS PANEL_PORT PANEL_WEB_PATH VMESS_PORT
+# PANEL_USER=myadmin PANEL_PASS=MyPass@888 PANEL_PORT=55221 PANEL_WEB_PATH=/admin VMESS_PORT=25000 bash <(curl -Ls https://cdn.jsdelivr.net/gh/JuiceArray/3x-ui@main/my‑3xui‑install.sh)
+
 PANEL_USER="${PANEL_USER:-admin}"
 PANEL_PASS="${PANEL_PASS:-Admin@123456}"
 PANEL_PORT="${PANEL_PORT:-54321}"
@@ -85,7 +88,6 @@ echo "面板路径: $PANEL_WEB_PATH"
 echo "VMess端口: $VMESS_PORT"
 echo "====================================="
 
-# CLI修改账号、密码、端口、web路径
 /usr/local/x-ui/x-ui setting -username "${PANEL_USER}" -password "${PANEL_PASS}"
 /usr/local/x-ui/x-ui setting -port "${PANEL_PORT}"
 /usr/local/x-ui/x-ui setting -webBasePath "${PANEL_WEB_PATH}"
@@ -97,7 +99,9 @@ sleep 15
 VMESS_UUID="$(cat /proc/sys/kernel/random/uuid)"
 VMESS_ALTERID=0
 CLIENT_EMAIL="auto-vmess-$(head -c8 /dev/urandom | xxd -p)"
-PANEL_ADDR="http://127.0.0.1:${PANEL_PORT}${PANEL_WEB_PATH}"
+
+# 获取公网IP
+IP=$(curl -s --max-time 8 ifconfig.me)
 
 # 防火墙放行
 if command -v firewall-cmd &>/dev/null;then
@@ -110,12 +114,10 @@ elif command -v ufw &>/dev/null;then
 fi
 
 COOKIE_FILE=$(mktemp)
-# 登录获取cookie
 curl -s -c "$COOKIE_FILE" -X POST "http://127.0.0.1:${PANEL_PORT}/login" \
 -H "Content-Type: application/json" \
 -d "{\"username\":\"${PANEL_USER}\",\"password\":\"${PANEL_PASS}\"}" >/dev/null
 
-# 3x‑ui 添加入站API：/panel/api/inbounds/add，必须带email字段
 curl -s -b "$COOKIE_FILE" -X POST "http://127.0.0.1:${PANEL_PORT}/panel/api/inbounds/add" \
 -H "Content-Type: application/json" \
 -d '{
@@ -136,7 +138,7 @@ curl -s -b "$COOKIE_FILE" -X POST "http://127.0.0.1:${PANEL_PORT}/panel/api/inbo
 rm -f "$COOKIE_FILE"
 x-ui restart
 
-IP=$(hostname -I | awk '{print $1}')
+# 生成 vmess:// 链接
 VMESS_LINK="vmess://$(echo -n "{\"v\":\"2\",\"ps\":\"auto-vmess\",\"add\":\"${IP}\",\"port\":\"${VMESS_PORT}\",\"id\":\"${VMESS_UUID}\",\"aid\":\"${VMESS_ALTERID}\",\"scy\":\"auto\",\"net\":\"tcp\",\"type\":\"none\",\"host\":\"\",\"path\":\"\",\"tls\":\"none\"}" | base64 -w 0)"
 
 echo ""
