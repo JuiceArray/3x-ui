@@ -1,7 +1,7 @@
 #!/bin/bash
 # 3x-ui 自定义一键安装脚本 | Fork版本
 # 环境变量可传参：PANEL_USER PANEL_PASS PANEL_PORT PANEL_WEB_PATH VMESS_PORT
-# PANEL_USER=myadmin PANEL_PASS=MyPass@888 PANEL_PORT=55221 PANEL_WEB_PATH=/admin VMESS_PORT=25000 bash <(curl -Ls https://cdn.jsdelivr.net/gh/JuiceArray/3x-ui@main/my‑3xui‑install.sh)
+# PANEL_USER=myadmin PANEL_PASS=MyPass@888 PANEL_PORT=55221 PANEL_WEB_PATH=/admin VMESS_PORT=25000 bash <(curl -Ls https://raw.githubusercontent.com/JuiceArray/3x-ui/main/my‑3xui‑install.sh)
 
 PANEL_USER="${PANEL_USER:-admin}"
 PANEL_PASS="${PANEL_PASS:-Admin@123456}"
