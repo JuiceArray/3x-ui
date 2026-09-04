@@ -94,7 +94,7 @@ echo "====================================="
 
 x-ui restart
 echo "等待3x-ui服务启动..."
-sleep 15
+sleep 8
 
 VMESS_UUID="$(cat /proc/sys/kernel/random/uuid)"
 VMESS_ALTERID=0
